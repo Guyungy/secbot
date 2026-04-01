@@ -1,0 +1,20 @@
+services:
+  secbot-backend:
+    build: .
+    container_name: secbot-backend-prod
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=sqlite:////app/data/secbot.db
+      - LOG_LEVEL=INFO
+      - PYTHONUNBUFFERED=1
+    restart: always
+
+volumes:
+  data:
+  logs:

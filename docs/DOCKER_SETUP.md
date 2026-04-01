@@ -2,54 +2,65 @@
 
 ## 当前状态
 
-截至当前仓库版本，**Secbot 没有维护中的官方 Dockerfile / docker-compose 部署方案**。
+项目已重新支持 **Dockerfile / docker-compose** 部署方案。该方案主要针对 **后端 API** 的容器化，方便在 Linux 服务器或 NAS 环境下长期稳定运行。
 
-这意味着：
+## 快速开始
 
-- 仓库里没有可直接拿来构建应用镜像的正式 Dockerfile
-- 也没有与当前代码同步维护的 `docker-compose.yml` / `docker-compose.prod.yml`
-- 文档中若提到历史上的容器化方案，均不应再视作现成可用
+如果你已安装 Docker 和 Docker Compose，可以通过以下步骤启动后端：
 
-## 当前推荐做法
+### 1. 配置环境
 
-如果你的目标是稳定运行后端，请优先使用：
+在项目根目录创建 `.env` 文件（如果没有的话），并填入必要的 API 密钥（如 DeepSeek）：
 
-- `uv run secbot --backend`
-- `python -m router.main`
-- systemd / supervisor / pm2 等宿主机进程管理方案
+```env
+LLM_PROVIDER=deepseek
+DEEPSEEK_API_KEY=sk-your-api-key
+DEEPSEEK_MODEL=deepseek-reasoner
+LOG_LEVEL=INFO
+```
 
-具体见 [DEPLOYMENT.md](DEPLOYMENT.md)。
+### 2. 启动服务
 
-## SQLite 说明
+使用 Docker Compose 启动：
 
-当前项目只依赖 **SQLite**，不需要额外启动：
+```bash
+# 启动服务
+docker-compose up -d
+```
 
-- Redis
-- ChromaDB
-- PostgreSQL
+或者使用 Makefile 中预置的任务：
 
-因此多数部署场景下，宿主机能提供：
+```bash
+# 构建镜像
+make docker-build
 
-- 一个可写的数据目录
-- 一个可写的日志目录
+# 启动服务 (生产模式)
+make docker-up
+```
 
-就已经足够。
+### 3. 验证
 
-## 如果你必须自行容器化
+启动后，API 默认监听在 `8000` 端口。你可以通过以下地址验证：
 
-建议把容器化范围限制在**后端 API**，并显式配置：
+- 健康检查: `http://localhost:8000/health`
+- API 文档: `http://localhost:8000/docs`
 
-- Python 运行时
-- `uv sync` 安装依赖
-- `.env` 注入
-- `DATABASE_URL` 绝对路径
-- 挂载 SQLite 数据目录与日志目录
+## SQLite 数据持久化
 
-同时请注意：
+Docker 配置中已预设了两个本地目录挂载：
 
-- `terminal-ui` 依赖 Node 与真实 TTY，更适合作为本地交互界面，而不是容器内常驻前端
-- 移动端与桌面端本质上都是调用后端 API，不要求它们和后端打进同一个镜像
+- `./data` -> `/app/data`: 存放 SQLite 数据库文件 (`secbot.db`)
+- `./logs` -> `/app/logs`: 存放运行日志
 
-## 文档边界
+这意味着即使容器被删除，你的扫描历史和配置数据也会保留在宿主机的 `data` 目录中。
 
-为了避免误导，本文档不再提供未经验证的 `docker build`、`docker-compose up` 示例命令。若后续仓库重新引入并维护容器化产物，再补充正式说明。
+## 局限性与说明
+
+1. **Terminal UI (TUI)**: TUI 依赖真实的 TTY 和交互式输入，不适合在 Docker 容器内作为常驻服务运行。建议将容器作为后端，在宿主机或其它机器上通过 `python main.py` 连接该后端的 API 地址。
+2. **端口冲突**: 如果宿主机的 `8000` 端口已被占用，请修改 `docker-compose.yml` 中的 `ports` 映射。
+
+## 常用命令
+
+- 查看日志: `docker-compose logs -f`
+- 停止服务: `docker-compose down`
+- 重新构建镜像: `docker-compose build --no-cache`
