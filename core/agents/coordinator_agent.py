@@ -102,7 +102,10 @@ class CoordinatorAgent(BaseAgent):
         聚合所有子 Agent 的工具，供 SessionManager 规划阶段注入 Planner 的 context。
         若无 tools_dict，Planner 收不到工具列表，会输出 tool_hint: null 导致无法执行。
         """
-        if hasattr(self._default_agent, "tools_dict") and self._default_agent.tools_dict:
+        if (
+            hasattr(self._default_agent, "tools_dict")
+            and self._default_agent.tools_dict
+        ):
             return self._default_agent.tools_dict
         # 兜底：从各子 Agent 聚合
         merged = {}
@@ -110,6 +113,41 @@ class CoordinatorAgent(BaseAgent):
             if hasattr(agent, "tools_dict") and agent.tools_dict:
                 merged.update(agent.tools_dict)
         return merged
+
+    def get_all_sub_agents(self):
+        """按稳定顺序返回默认 agent 与所有专职子 agent。"""
+        return [
+            self._default_agent,
+            self._network_agent,
+            self._web_agent,
+            self._osint_agent,
+            self._terminal_agent,
+            self._defense_agent,
+        ]
+
+    def _resolve_agent_for_tool(self, selected_agent, tool_hint: Optional[str]):
+        """
+        若当前选中的 agent 不包含 todo 所需工具，则回退到真正拥有该工具的 agent。
+        找不到时返回原 agent，保留下游现有错误语义。
+        """
+        if not tool_hint or not isinstance(tool_hint, str) or not tool_hint.strip():
+            return selected_agent
+
+        tool_name = tool_hint.strip()
+        if (
+            selected_agent is not None
+            and hasattr(selected_agent, "tools_dict")
+            and tool_name in getattr(selected_agent, "tools_dict", {})
+        ):
+            return selected_agent
+
+        for agent in self.get_all_sub_agents():
+            if hasattr(agent, "tools_dict") and tool_name in getattr(
+                agent, "tools_dict", {}
+            ):
+                return agent
+
+        return selected_agent
 
     # ------------------------------------------------------------------
     # BaseAgent 接口：普通对话 / 同步模式仍走默认 Hackbot
@@ -155,6 +193,24 @@ class CoordinatorAgent(BaseAgent):
         if sub_agent is None:
             sub_agent = self._default_agent
             resolved_hint = getattr(sub_agent, "agent_type", None) or "secbot-cli"
+
+        tool_hint = getattr(todo, "tool_hint", None) or (
+            todo.get("tool_hint") if isinstance(todo, dict) else None
+        )
+        resolved_agent = self._resolve_agent_for_tool(sub_agent, tool_hint)
+        if resolved_agent is not sub_agent:
+            logger.info(
+                "工具归属回退: %s -> %s (tool=%s)",
+                getattr(sub_agent, "agent_type", getattr(sub_agent, "name", "unknown")),
+                getattr(
+                    resolved_agent,
+                    "agent_type",
+                    getattr(resolved_agent, "name", "unknown"),
+                ),
+                tool_hint,
+            )
+            sub_agent = resolved_agent
+            resolved_hint = getattr(sub_agent, "agent_type", None) or resolved_hint
 
         # 将 get_root_password 透传给底层 SecurityReActAgent
         result = await sub_agent.execute_todo(  # type: ignore[attr-defined]
@@ -278,7 +334,17 @@ class CoordinatorAgent(BaseAgent):
         )
         tool_hint_lower = (tool_hint or "").lower()
         if tool_hint_lower:
-            if any(k in tool_hint_lower for k in ["port_scan", "service_detect", "recon", "subnet", "ping", "traceroute"]):
+            if any(
+                k in tool_hint_lower
+                for k in [
+                    "port_scan",
+                    "service_detect",
+                    "recon",
+                    "subnet",
+                    "ping",
+                    "traceroute",
+                ]
+            ):
                 return self._network_agent, "network_recon"
             if any(
                 k in tool_hint_lower
@@ -332,4 +398,3 @@ class CoordinatorAgent(BaseAgent):
 
 
 __all__ = ["CoordinatorAgent"]
-
