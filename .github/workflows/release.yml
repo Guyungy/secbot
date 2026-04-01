@@ -1,8 +1,8 @@
-# 多平台构建 Hackbot 可执行程序并发布到 GitHub Release
-# 依赖: pyproject.toml + uv（不再使用 requirements.txt）
-# 触发: 推送 tag 如 v1.0.0，或手动 workflow_dispatch
-
 name: Release
+
+env:
+  # 提前启用 Node.js 24 支持，以响应 GitHub 的 Node.js 20 弃用警告
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 on:
   push:
@@ -67,7 +67,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v5
 
       - name: Install dependencies (uv)
         shell: bash
@@ -122,7 +122,7 @@ jobs:
           title_version = release_tag or release_version_raw or "dev"
 
           content = [
-              f"# Hackbot {title_version}",
+              f"# Secbot {title_version}",
               "",
               f"Platform: {platform_name}",
               f"Build: {build_time}",
@@ -142,9 +142,9 @@ jobs:
         shell: bash
         run: |
           if [ "${{ runner.os }}" = "Windows" ]; then
-            python -c "import shutil,os; os.chdir('dist'); shutil.make_archive('hackbot-${{ matrix.name }}', 'zip', '.', 'hackbot')"
+            python -c "import shutil,os; os.chdir('dist'); shutil.make_archive('secbot-cli-${{ matrix.name }}', 'zip', '.', 'hackbot')"
           else
-            .venv/bin/python -c "import shutil,os; os.chdir('dist'); shutil.make_archive('hackbot-${{ matrix.name }}', 'zip', '.', 'hackbot')"
+            .venv/bin/python -c "import shutil,os; os.chdir('dist'); shutil.make_archive('secbot-cli-${{ matrix.name }}', 'zip', '.', 'hackbot')"
           fi
 
       - name: Upload artifact
@@ -168,5 +168,17 @@ jobs:
         with:
           tag_name: ${{ needs.release.outputs.tag }}
           files: artifacts/**/*.zip
+          append_body: true
+          body: |
+            
+            ## 🐳 Docker 部署 (Recommended)
+            
+            你可以直接使用以下命令拉取并运行后端 API 镜像：
+            
+            ```bash
+            docker pull ghcr.io/${{ github.repository }}:${{ needs.release.outputs.tag || 'latest' }}
+            ```
+            
+            详细说明请参考 [DOCKER_SETUP.md](https://github.com/${{ github.repository }}/blob/main/docs/DOCKER_SETUP.md)。
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
