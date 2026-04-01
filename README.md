@@ -52,7 +52,7 @@
 
 ---
 
-> **安全警告**：本工具仅用于**获得明确授权**的安全测试、研究与教学。未经授权的网络攻击、渗透、爆破或控制行为可能违法。详见 [docs/SECURITY_WARNING.md](docs/SECURITY_WARNING.md)。
+> **安全警告**：本工具仅用于**获得明确授权**的安全测试、研究与教学。 未经授权的网络攻击、渗透、爆破或控制行为可能违法。详见 [docs/SECURITY_WARNING.md](docs/SECURITY_WARNING.md)。
 
 ---
 
@@ -217,27 +217,27 @@ cd desktop && npm install && npm run tauri dev
 
 ### 3. 常用环境变量
 
-| 变量 | 用途 | 默认值 |
-|------|------|--------|
-| `LLM_PROVIDER` | 当前推理后端 | `deepseek` |
-| `DEEPSEEK_API_KEY` | DeepSeek API Key | 无 |
-| `DEEPSEEK_MODEL` | DeepSeek 默认模型 | `deepseek-reasoner` |
-| `OLLAMA_BASE_URL` | Ollama 服务地址 | `http://localhost:11434` |
-| `OLLAMA_MODEL` | Ollama 默认模型 | `gemma3:1b` |
-| `OLLAMA_EMBEDDING_MODEL` | Ollama 嵌入模型 | `nomic-embed-text` |
-| `DATABASE_URL` | SQLite 路径 | `sqlite:///./data/secbot.db` |
-| `LOG_LEVEL` | 日志级别 | `INFO` |
+| 变量                     | 用途              | 默认值                       |
+| ------------------------ | ----------------- | ---------------------------- |
+| `LLM_PROVIDER`           | 当前推理后端      | `deepseek`                   |
+| `DEEPSEEK_API_KEY`       | DeepSeek API Key  | 无                           |
+| `DEEPSEEK_MODEL`         | DeepSeek 默认模型 | `deepseek-reasoner`          |
+| `OLLAMA_BASE_URL`        | Ollama 服务地址   | `http://localhost:11434`     |
+| `OLLAMA_MODEL`           | Ollama 默认模型   | `gemma3:1b`                  |
+| `OLLAMA_EMBEDDING_MODEL` | Ollama 嵌入模型   | `nomic-embed-text`           |
+| `DATABASE_URL`           | SQLite 路径       | `sqlite:///./data/secbot.db` |
+| `LOG_LEVEL`              | 日志级别          | `INFO`                       |
 
 ### 4. 常见斜杠命令
 
-| 命令 | 说明 |
-|------|------|
-| `/model` | 选择推理后端、模型、API Key、Base URL |
-| `/agent` | 切换 `secbot-cli` / `superhackbot` |
-| `/list-agents` | 查看当前可用智能体 |
-| `/system-info` | 查看系统信息 |
-| `/db-stats` | 查看 SQLite 统计 |
-| `/logs` | 查看运行日志 |
+| 命令           | 说明                                  |
+| -------------- | ------------------------------------- |
+| `/model`       | 选择推理后端、模型、API Key、Base URL |
+| `/agent`       | 切换 `secbot-cli` / `superhackbot`    |
+| `/list-agents` | 查看当前可用智能体                    |
+| `/system-info` | 查看系统信息                          |
+| `/db-stats`    | 查看 SQLite 统计                      |
+| `/logs`        | 查看运行日志                          |
 
 ## 目录结构
 
@@ -260,19 +260,19 @@ secbot/
 
 ## 文档索引
 
-| 文档 | 说明 |
-|------|------|
-| [docs/QUICKSTART.md](docs/QUICKSTART.md) | 从源码启动、前后端调试与常见入口 |
-| [docs/API.md](docs/API.md) | FastAPI REST + SSE 接口说明 |
-| [docs/APP.md](docs/APP.md) | Expo / React Native 移动端说明 |
-| [docs/LLM_PROVIDERS.md](docs/LLM_PROVIDERS.md) | 多厂商模型后端与配置方式 |
-| [docs/OLLAMA_SETUP.md](docs/OLLAMA_SETUP.md) | 本地 Ollama 配置与排障 |
+| 文档                                                                   | 说明                                 |
+| ---------------------------------------------------------------------- | ------------------------------------ |
+| [docs/QUICKSTART.md](docs/QUICKSTART.md)                               | 从源码启动、前后端调试与常见入口     |
+| [docs/API.md](docs/API.md)                                             | FastAPI REST + SSE 接口说明          |
+| [docs/APP.md](docs/APP.md)                                             | Expo / React Native 移动端说明       |
+| [docs/LLM_PROVIDERS.md](docs/LLM_PROVIDERS.md)                         | 多厂商模型后端与配置方式             |
+| [docs/OLLAMA_SETUP.md](docs/OLLAMA_SETUP.md)                           | 本地 Ollama 配置与排障               |
 | [docs/UI-DESIGN-AND-INTERACTION.md](docs/UI-DESIGN-AND-INTERACTION.md) | `terminal-ui` 的交互设计与上下文架构 |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | 后端部署与 systemd 示例 |
-| [docs/DOCKER_SETUP.md](docs/DOCKER_SETUP.md) | Docker 当前策略说明 |
-| [docs/RELEASE.md](docs/RELEASE.md) | Release 包使用与源码打包说明 |
-| [docs/DATABASE_GUIDE.md](docs/DATABASE_GUIDE.md) | SQLite 结构与数据库操作 |
-| [docs/CHANGELOG.md](docs/CHANGELOG.md) | 版本变更记录 |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)                               | 后端部署与 systemd 示例              |
+| [docs/DOCKER_SETUP.md](docs/DOCKER_SETUP.md)                           | Docker 当前策略说明                  |
+| [docs/RELEASE.md](docs/RELEASE.md)                                     | Release 包使用与源码打包说明         |
+| [docs/DATABASE_GUIDE.md](docs/DATABASE_GUIDE.md)                       | SQLite 结构与数据库操作              |
+| [docs/CHANGELOG.md](docs/CHANGELOG.md)                                 | 版本变更记录                         |
 
 ## 贡献
 
